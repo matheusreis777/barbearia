@@ -28,12 +28,27 @@ function formatTelefone(value: string) {
   return result;
 }
 
+function formatCEP(value: string) {
+  const digits = value.replace(/\D/g, '').slice(0, 8);
+  let result = '';
+  for (let i = 0; i < digits.length; i++) {
+    if (i === 5) result += '-';
+    result += digits[i];
+  }
+  return result;
+}
+
 export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: (id: string) => void }) {
   const navigate = useNavigate();
   const [nome, setNome] = useState('');
   const [cnpj, setCnpj] = useState('');
   const [telefone, setTelefone] = useState('');
-  const [endereco, setEndereco] = useState('');
+  const [cep, setCep] = useState('');
+  const [rua, setRua] = useState('');
+  const [numero, setNumero] = useState('');
+  const [complemento, setComplemento] = useState('');
+  const [cidade, setCidade] = useState('');
+  const [estado, setEstado] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -43,6 +58,10 @@ export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: 
 
   const handleTelefoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTelefone(formatTelefone(e.target.value));
+  };
+
+  const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCep(formatCEP(e.target.value));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -76,7 +95,12 @@ export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: 
           nome,
           cnpj: cnpj || null,
           telefone: telefone || null,
-          endereco: endereco || null,
+          cep: cep || null,
+          rua: rua || null,
+          numero: numero || null,
+          complemento: complemento || null,
+          cidade: cidade || null,
+          estado: estado || null,
         })
         .select()
         .single();
@@ -114,39 +138,102 @@ export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: 
             />
           </div>
           
+          <div style={styles.row}>
+            <div style={styles.field}>
+              <label style={styles.label}>CNPJ</label>
+              <input
+                type="text"
+                value={cnpj}
+                onChange={handleCnpjChange}
+                style={styles.input}
+                placeholder="00.000.000/0001-00"
+                maxLength={18}
+              />
+            </div>
+            
+            <div style={styles.field}>
+              <label style={styles.label}>Telefone</label>
+              <input
+                type="text"
+                value={telefone}
+                onChange={handleTelefoneChange}
+                style={styles.input}
+                placeholder="(00) 00000-0000"
+                maxLength={15}
+              />
+            </div>
+          </div>
+          
           <div style={styles.field}>
-            <label style={styles.label}>CNPJ</label>
+            <label style={styles.label}>CEP</label>
             <input
               type="text"
-              value={cnpj}
-              onChange={handleCnpjChange}
+              value={cep}
+              onChange={handleCepChange}
               style={styles.input}
-              placeholder="00.000.000/0001-00"
-              maxLength={18}
+              placeholder="00000-000"
+              maxLength={9}
             />
           </div>
           
           <div style={styles.field}>
-            <label style={styles.label}>Telefone</label>
+            <label style={styles.label}>Rua</label>
             <input
               type="text"
-              value={telefone}
-              onChange={handleTelefoneChange}
+              value={rua}
+              onChange={(e) => setRua(e.target.value)}
               style={styles.input}
-              placeholder="(00) 00000-0000"
-              maxLength={15}
+              placeholder="Rua, avenue, etc"
             />
           </div>
           
-          <div style={styles.field}>
-            <label style={styles.label}>Endereço</label>
-            <input
-              type="text"
-              value={endereco}
-              onChange={(e) => setEndereco(e.target.value)}
-              style={styles.input}
-              placeholder="Rua, número, bairro, cidade"
-            />
+          <div style={styles.row}>
+            <div style={styles.field}>
+              <label style={styles.label}>Número</label>
+              <input
+                type="text"
+                value={numero}
+                onChange={(e) => setNumero(e.target.value)}
+                style={styles.input}
+                placeholder="Nº"
+              />
+            </div>
+            
+            <div style={styles.field}>
+              <label style={styles.label}>Complemento</label>
+              <input
+                type="text"
+                value={complemento}
+                onChange={(e) => setComplemento(e.target.value)}
+                style={styles.input}
+                placeholder="Sala, andar, etc"
+              />
+            </div>
+          </div>
+          
+          <div style={styles.row}>
+            <div style={styles.field}>
+              <label style={styles.label}>Cidade</label>
+              <input
+                type="text"
+                value={cidade}
+                onChange={(e) => setCidade(e.target.value)}
+                style={styles.input}
+                placeholder="Cidade"
+              />
+            </div>
+            
+            <div style={styles.field}>
+              <label style={styles.label}>Estado (UF)</label>
+              <input
+                type="text"
+                value={estado}
+                onChange={(e) => setEstado(e.target.value.toUpperCase().slice(0, 2))}
+                style={styles.input}
+                placeholder="SP"
+                maxLength={2}
+              />
+            </div>
           </div>
           
           <button type="submit" style={styles.button} disabled={loading}>
@@ -171,7 +258,7 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: '8px',
     padding: '32px',
     width: '100%',
-    maxWidth: '400px',
+    maxWidth: '450px',
     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
   },
   title: {
@@ -196,12 +283,17 @@ const styles: Record<string, React.CSSProperties> = {
   form: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '16px',
+    gap: '12px',
+  },
+  row: {
+    display: 'flex',
+    gap: '12px',
   },
   field: {
     display: 'flex',
     flexDirection: 'column',
     gap: '4px',
+    flex: 1,
   },
   label: {
     fontSize: '14px',
