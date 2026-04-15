@@ -46,6 +46,7 @@ export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: 
   const [cep, setCep] = useState('');
   const [rua, setRua] = useState('');
   const [numero, setNumero] = useState('');
+  const [bairro, setBairro] = useState('');
   const [complemento, setComplemento] = useState('');
   const [cidade, setCidade] = useState('');
   const [estado, setEstado] = useState('');
@@ -98,6 +99,7 @@ export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: 
           cep: cep || null,
           rua: rua || null,
           numero: numero || null,
+          bairro: bairro || null,
           complemento: complemento || null,
           cidade: cidade || null,
           estado: estado || null,
@@ -141,7 +143,7 @@ export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: 
             />
           </div>
           
-          <div style={styles.row}>
+          <div style={styles.rowHalf}>
             <div style={styles.field}>
               <label style={styles.label}>CNPJ</label>
               <input
@@ -171,8 +173,8 @@ export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: 
           
           <div style={styles.sectionTitle}>Endereço</div>
           
-          <div style={styles.row}>
-            <div style={{...styles.field, flex: 2}}>
+          <div style={styles.rowHalf}>
+            <div style={styles.fieldFlex2}>
               <label style={styles.label}>CEP</label>
               <input
                 type="text"
@@ -184,43 +186,20 @@ export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: 
               />
             </div>
             
-            <div style={{...styles.field, flex: 1}}>
-              <label style={styles.label}>Estado</label>
+            <div style={styles.fieldFlex3}>
+              <label style={styles.label}>Rua</label>
               <input
                 type="text"
-                value={estado}
-                onChange={(e) => setEstado(e.target.value.toUpperCase().slice(0, 2))}
+                value={rua}
+                onChange={(e) => setRua(e.target.value)}
                 style={styles.input}
-                placeholder="SP"
-                maxLength={2}
+                placeholder="Rua, Avenida, etc"
               />
             </div>
           </div>
           
-          <div style={styles.field}>
-            <label style={styles.label}>Cidade</label>
-            <input
-              type="text"
-              value={cidade}
-              onChange={(e) => setCidade(e.target.value)}
-              style={styles.input}
-              placeholder="Cidade"
-            />
-          </div>
-          
-          <div style={styles.field}>
-            <label style={styles.label}>Rua</label>
-            <input
-              type="text"
-              value={rua}
-              onChange={(e) => setRua(e.target.value)}
-              style={styles.input}
-              placeholder="Rua, Avenida, etc"
-            />
-          </div>
-          
-          <div style={styles.row}>
-            <div style={{...styles.field, flex: 2}}>
+          <div style={styles.rowHalf}>
+            <div style={styles.fieldFlex2}>
               <label style={styles.label}>Número</label>
               <input
                 type="text"
@@ -231,14 +210,50 @@ export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: 
               />
             </div>
             
-            <div style={{...styles.field, flex: 3}}>
-              <label style={styles.label}>Complemento</label>
+            <div style={styles.fieldFlex3}>
+              <label style={styles.label}>Bairro</label>
               <input
                 type="text"
-                value={complemento}
-                onChange={(e) => setComplemento(e.target.value)}
+                value={bairro}
+                onChange={(e) => setBairro(e.target.value)}
                 style={styles.input}
-                placeholder="Sala, Andar, etc"
+                placeholder="Bairro"
+              />
+            </div>
+          </div>
+          
+          <div style={styles.field}>
+            <label style={styles.label}>Complemento</label>
+            <input
+              type="text"
+              value={complemento}
+              onChange={(e) => setComplemento(e.target.value)}
+              style={styles.input}
+              placeholder="Sala, Andar, etc"
+            />
+          </div>
+          
+          <div style={styles.rowHalf}>
+            <div style={styles.fieldFlex3}>
+              <label style={styles.label}>Cidade</label>
+              <input
+                type="text"
+                value={cidade}
+                onChange={(e) => setCidade(e.target.value)}
+                style={styles.input}
+                placeholder="Cidade"
+              />
+            </div>
+            
+            <div style={styles.fieldFlex2}>
+              <label style={styles.label}>Estado</label>
+              <input
+                type="text"
+                value={estado}
+                onChange={(e) => setEstado(e.target.value.toUpperCase().slice(0, 2))}
+                style={styles.input}
+                placeholder="SP"
+                maxLength={2}
               />
             </div>
           </div>
@@ -294,7 +309,7 @@ const styles: Record<string, React.CSSProperties> = {
   form: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '16px',
+    gap: '14px',
   },
   sectionTitle: {
     fontSize: '13px',
@@ -310,7 +325,7 @@ const styles: Record<string, React.CSSProperties> = {
     backgroundColor: '#eee',
     margin: '8px 0',
   },
-  row: {
+  rowHalf: {
     display: 'flex',
     gap: '12px',
   },
@@ -319,6 +334,18 @@ const styles: Record<string, React.CSSProperties> = {
     flexDirection: 'column',
     gap: '6px',
     flex: 1,
+  },
+  fieldFlex2: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+    flex: 2,
+  },
+  fieldFlex3: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+    flex: 3,
   },
   label: {
     fontSize: '14px',
@@ -330,7 +357,8 @@ const styles: Record<string, React.CSSProperties> = {
     border: '1px solid #ddd',
     borderRadius: '6px',
     fontSize: '15px',
-    transition: 'border-color 0.2s',
+    width: '100%',
+    boxSizing: 'border-box',
     outline: 'none',
   },
   button: {
@@ -343,6 +371,5 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: '500',
     cursor: 'pointer',
     marginTop: '16px',
-    transition: 'background-color 0.2s',
   },
 };
