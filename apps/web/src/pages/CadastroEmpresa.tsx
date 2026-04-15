@@ -3,19 +3,29 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@barbearia/auth';
 
 function formatCNPJ(value: string) {
-  return value
-    .replace(/\D/g, '')
-    .replace(/^(\d{2})(\d)/, '$1.$2')
-    .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
-    .replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3.$4')
-    .replace(/^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/, '$1.$2.$3.$4-$5');
+  const digits = value.replace(/\D/g, '').slice(0, 14);
+  let result = '';
+  for (let i = 0; i < digits.length; i++) {
+    if (i === 2) result += '.';
+    if (i === 5) result += '.';
+    if (i === 8) result += '/';
+    if (i === 12) result += '-';
+    result += digits[i];
+  }
+  return result;
 }
 
 function formatTelefone(value: string) {
-  return value
-    .replace(/\D/g, '')
-    .replace(/^(\d{2})(\d)/, '($1) $2')
-    .replace(/^(\d{2})\s(\d{5})(\d)/, '$1 $2-$3');
+  const digits = value.replace(/\D/g, '').slice(0, 11);
+  let result = '';
+  for (let i = 0; i < digits.length; i++) {
+    if (i === 0) result += '(';
+    if (i === 2) result += ') ';
+    if (i === 7 && digits.length > 10) result += '-';
+    if (i === 6 && digits.length <= 10) result += '-';
+    result += digits[i];
+  }
+  return result;
 }
 
 export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: (id: string) => void }) {
