@@ -9,56 +9,58 @@ import CadastroEmpresa from './pages/CadastroEmpresa';
 function App() {
   const [loading, setLoading] = useState(true);
   const [globalLoading, setGlobalLoading] = useState(false);
+  const [checkingEmpresa, setCheckingEmpresa] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [empresaId, setEmpresaId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const checkEmpresa = async (userId: string) => {
-      setGlobalLoading(true);
-      const { data: usuario } = await supabase
-        .from('usuarios')
+  const checkEmpresa = async (userId: string) => {
+    setCheckingEmpresa(true);
+    try {
+      const { data: empresa } = await supabase
+        .from('empresas')
         .select('id')
         .eq('auth_id', userId)
-        .single();
-
-      if (usuario) {
-        const { data: empresas } = await supabase
-          .from('empresas')
-          .select('id')
-          .eq('usuario_id', usuario.id)
-          .maybeSingle();
-        
-        if (empresas) {
-          setEmpresaId(empresas.id);
-        }
+        .maybeSingle();
+      
+      if (empresa) {
+        setEmpresaId(empresa.id);
+        return empresa.id;
       }
+      return null;
+    } finally {
+      setCheckingEmpresa(false);
+    }
+  };
+
+  useEffect(() => {
+    const initAuth = async () => {
+      const { data } = await getSession();
+      setSession(data.session);
+      
+      if (data.session?.user?.id) {
+        await checkEmpresa(data.session.user.id);
+      }
+      
       setLoading(false);
-      setGlobalLoading(false);
     };
 
-    getSession().then(({ data }) => {
-      setSession(data.session);
-      if (data.session?.user?.id) {
-        checkEmpresa(data.session.user.id);
-      } else {
-        setLoading(false);
-        setGlobalLoading(false);
-      }
-    });
+    initAuth();
 
-    onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = onAuthStateChange((_event, session) => {
       setSession(session);
       if (session?.user?.id) {
         checkEmpresa(session.user.id);
       } else {
         setEmpresaId(null);
-        setLoading(false);
-        setGlobalLoading(false);
       }
     });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const setEmpresa = (id: string | null) => {
+  const handleLoginSuccess = (id: string | null) => {
     setEmpresaId(id);
   };
 
@@ -73,17 +75,58 @@ function App() {
 
   return (
     <>
-      {globalLoading && (
+      {(globalLoading || checkingEmpresa) && (
         <div style={styles.globalLoading}>
           <div style={styles.globalSpinner}></div>
         </div>
       )}
       <Routes>
-        <Route path="/login" element={session ? <Navigate to={empresaId ? "/dashboard" : "/cadastro-empresa"} /> : <Login setGlobalLoading={setGlobalLoading} />} />
-        <Route path="/register" element={session ? <Navigate to={empresaId ? "/dashboard" : "/cadastro-empresa"} /> : <Register setGlobalLoading={setGlobalLoading} />} />
-        <Route path="/cadastro-empresa" element={session ? <CadastroEmpresa onEmpresaCriada={setEmpresa} setGlobalLoading={setGlobalLoading} /> : <Navigate to="/login" />} />
-        <Route path="/dashboard" element={empresaId ? <Dashboard /> : <Navigate to="/cadastro-empresa" />} />
-        <Route path="/" element={<Navigate to={session ? (empresaId ? '/dashboard' : '/cadastro-empresa') : '/login'} />} />
+        <Route 
+          path="/login" 
+          element={
+            session ? (
+              checkingEmpresa ? <div></div> : <Navigate to={empresaId ? "/dashboard" : "/cadastro-empresa"} />
+            ) : (
+              <Login setGlobalLoading={setGlobalLoading} onLoginSuccess={handleLoginSuccess} />
+            )
+          } 
+        />
+        <Route 
+          path="/register" 
+          element={
+            session ? (
+              checkingEmpresa ? <div></div> : <Navigate to={empresaId ? "/dashboard" : "/cadastro-empresa"} />
+            ) : (
+              <Register setGlobalLoading={setGlobalLoading} />
+            )
+          } 
+        />
+        <Route 
+          path="/cadastro-empresa" 
+          element={
+            session ? (
+              <CadastroEmpresa onEmpresaCriada={handleLoginSuccess} setGlobalLoading={setGlobalLoading} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          } 
+        />
+        <Route 
+          path="/dashboard" 
+          element={
+            session ? (
+              checkingEmpresa ? <div></div> : (empresaId ? <Dashboard /> : <Navigate to="/cadastro-empresa" />)
+            ) : (
+              <Navigate to="/login" />
+            )
+          } 
+        />
+        <Route 
+          path="/" 
+          element={
+            <Navigate to={session ? (empresaId ? '/dashboard' : '/cadastro-empresa') : '/login'} />
+          } 
+        />
       </Routes>
     </>
   );

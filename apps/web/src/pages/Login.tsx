@@ -1,8 +1,13 @@
-import { useState, Dispatch, SetStateAction } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { signIn } from '@barbearia/auth';
+import { signIn, supabase } from '@barbearia/auth';
 
-export default function Login({ setGlobalLoading }: { setGlobalLoading?: Dispatch<SetStateAction<boolean>> }) {
+interface LoginProps {
+  setGlobalLoading?: (loading: boolean) => void;
+  onLoginSuccess?: (empresaId: string | null) => void;
+}
+
+export default function Login({ setGlobalLoading, onLoginSuccess }: LoginProps) {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,14 +21,29 @@ export default function Login({ setGlobalLoading }: { setGlobalLoading?: Dispatc
     if (setGlobalLoading) setGlobalLoading(true);
 
     try {
-      const { error } = await signIn(email, password);
+      const { data, error: signInError } = await signIn(email, password);
       
-      if (error) {
-        setError(error.message);
-      } else {
-        navigate('/dashboard');
+      if (signInError) {
+        setError(signInError.message);
+      } else if (data.user) {
+        // Verificar se já possui empresa vinculada
+        const { data: empresa } = await supabase
+          .from('empresas')
+          .select('id')
+          .eq('auth_id', data.user.id)
+          .maybeSingle();
+        
+        if (onLoginSuccess) {
+          onLoginSuccess(empresa?.id || null);
+        }
+
+        if (empresa) {
+          navigate('/dashboard');
+        } else {
+          navigate('/cadastro-empresa');
+        }
       }
-    } catch {
+    } catch (err: any) {
       setError('Erro ao fazer login. Tente novamente.');
     } finally {
       setLoading(false);

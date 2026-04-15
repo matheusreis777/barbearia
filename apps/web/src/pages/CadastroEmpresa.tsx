@@ -1,6 +1,6 @@
 import { useState, Dispatch, SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@barbearia/auth';
+import { supabase, signOut } from '@barbearia/auth';
 
 function formatCNPJ(value: string) {
   const digits = value.replace(/\D/g, '').slice(0, 14);
@@ -110,21 +110,10 @@ export default function CadastroEmpresa({
         return;
       }
 
-      const { data: usuario } = await supabase
-        .from('usuarios')
-        .select('id')
-        .eq('auth_id', user.id)
-        .single();
-
-      if (!usuario) {
-        setError('Usuário não encontrado');
-        return;
-      }
-
       const { data, error: err } = await supabase
         .from('empresas')
         .insert({
-          usuario_id: usuario.id,
+          auth_id: user.id,
           nome,
           cnpj: cnpj || null,
           telefone: telefone || null,
@@ -296,6 +285,17 @@ export default function CadastroEmpresa({
           <button type="submit" style={styles.button} disabled={loading}>
             {loading ? 'Criando...' : 'Cadastrar Empresa'}
           </button>
+          
+          <button 
+            type="button" 
+            style={styles.logoutButton}
+            onClick={async () => {
+              await signOut();
+              navigate('/login');
+            }}
+          >
+            Sair
+          </button>
         </form>
       </div>
     </div>
@@ -408,6 +408,17 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: '500',
     cursor: 'pointer',
     marginTop: '16px',
+  },
+  logoutButton: {
+    padding: '12px',
+    backgroundColor: 'transparent',
+    color: '#a0a0a0',
+    border: '1px solid #404040',
+    borderRadius: '6px',
+    fontSize: '14px',
+    cursor: 'pointer',
+    marginTop: '12px',
+    width: '100%',
   },
   loadingText: {
     fontSize: '12px',
