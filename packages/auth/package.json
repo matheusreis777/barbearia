@@ -1,0 +1,17 @@
+{
+  "name": "@barbearia/auth",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.47.10"
+  },
+  "devDependencies": {
+    "@barbearia/config": "*",
+    "typescript": "^5.7.2"
+  }
+}
