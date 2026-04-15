@@ -17,6 +17,18 @@ export default function Login({ setGlobalLoading, onLoginSuccess }: LoginProps) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    
+    // Validação básica local
+    if (!email || !password) {
+      setError('Preencha todos os campos.');
+      return;
+    }
+
+    if (!email.includes('@')) {
+      setError('Informe um e-mail válido.');
+      return;
+    }
+
     setLoading(true);
     if (setGlobalLoading) setGlobalLoading(true);
 
@@ -24,7 +36,14 @@ export default function Login({ setGlobalLoading, onLoginSuccess }: LoginProps) 
       const { data, error: signInError } = await signIn(email, password);
       
       if (signInError) {
-        setError(signInError.message);
+        // Tratamento de erros genéricos em português
+        if (signInError.message === 'Invalid login credentials' || signInError.status === 400) {
+          setError('E-mail ou senha incorretos.');
+        } else if (signInError.message.includes('Email not confirmed')) {
+          setError('E-mail ainda não confirmado. Verifique sua caixa de entrada.');
+        } else {
+          setError('Ocorreu um erro ao tentar entrar. Tente novamente mais tarde.');
+        }
       } else if (data.user) {
         // Verificar se já possui empresa vinculada
         const { data: empresa } = await supabase
@@ -44,7 +63,7 @@ export default function Login({ setGlobalLoading, onLoginSuccess }: LoginProps) 
         }
       }
     } catch (err: any) {
-      setError('Erro ao fazer login. Tente novamente.');
+      setError('Erro de conexão. Verifique sua internet.');
     } finally {
       setLoading(false);
       if (setGlobalLoading) setGlobalLoading(false);

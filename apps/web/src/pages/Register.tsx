@@ -13,19 +13,40 @@ export default function Register({ setGlobalLoading }: { setGlobalLoading?: Disp
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    
+    // Validações básicas
+    if (!nome || !email || !password) {
+      setError('Preencha todos os campos.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('A senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
+
+    if (!email.includes('@')) {
+      setError('Informe um e-mail válido.');
+      return;
+    }
+
     setLoading(true);
     if (setGlobalLoading) setGlobalLoading(true);
 
     try {
-      const { error } = await signUp(email, password, { nome });
+      const { error: signUpError } = await signUp(email, password, { nome });
       
-      if (error) {
-        setError(error.message);
+      if (signUpError) {
+        if (signUpError.message.includes('User already registered')) {
+          setError('Este e-mail já está em uso.');
+        } else {
+          setError('Ocorreu um erro ao criar a conta. Tente novamente.');
+        }
       } else {
         setSuccess(true);
       }
-    } catch {
-      setError('Erro ao criar conta. Tente novamente.');
+    } catch (err) {
+      setError('Erro de conexão. Verifique sua internet.');
     } finally {
       setLoading(false);
       if (setGlobalLoading) setGlobalLoading(false);

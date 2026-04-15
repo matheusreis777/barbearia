@@ -129,13 +129,17 @@ export default function CadastroEmpresa({
         .single();
 
       if (err) {
-        setError(err.message);
+        if (err.message.includes('unique constraint')) {
+          setError('Já existe uma empresa cadastrada para este usuário ou CNPJ.');
+        } else {
+          setError('Ocorreu um erro ao salvar os dados da empresa. Verifique as informações.');
+        }
       } else if (data) {
         onEmpresaCriada(data.id);
         navigate('/dashboard');
       }
-    } catch {
-      setError('Erro ao criar empresa. Tente novamente.');
+    } catch (err: any) {
+      setError('Erro de conexão ou no servidor. Tente novamente.');
     } finally {
       setLoading(false);
       if (setGlobalLoading) setGlobalLoading(false);
