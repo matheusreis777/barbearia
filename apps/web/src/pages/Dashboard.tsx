@@ -39,7 +39,8 @@ export default function Dashboard() {
 const styles: Record<string, React.CSSProperties> = {
   container: {
     minHeight: '100vh',
-    padding: '20px',
+    padding: '40px 20px',
+    backgroundColor: '#1a1a1a',
   },
   header: {
     display: 'flex',
@@ -50,29 +51,31 @@ const styles: Record<string, React.CSSProperties> = {
   title: {
     fontSize: '28px',
     fontWeight: 'bold',
+    color: '#ff6600',
   },
   button: {
     padding: '10px 20px',
     backgroundColor: '#dc2626',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '6px',
     fontSize: '14px',
     cursor: 'pointer',
   },
   card: {
-    backgroundColor: 'white',
-    borderRadius: '8px',
+    backgroundColor: '#2d2d2d',
+    borderRadius: '12px',
     padding: '24px',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
   },
   subtitle: {
     fontSize: '20px',
     fontWeight: 'bold',
     marginBottom: '16px',
+    color: '#ff6600',
   },
   text: {
     marginBottom: '8px',
-    color: '#333',
+    color: '#ffffff',
   },
 };

@@ -82,6 +82,9 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
+    backgroundColor: '#1a1a1a',
+    color: '#ff6600',
+    fontSize: '18px',
   },
 };
 

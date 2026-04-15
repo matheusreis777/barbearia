@@ -22,7 +22,7 @@ export default function Login() {
       } else {
         navigate('/dashboard');
       }
-    } catch (err) {
+    } catch {
       setError('Erro ao fazer login. Tente novamente.');
     } finally {
       setLoading(false);
@@ -82,31 +82,33 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '20px',
   },
   card: {
-    backgroundColor: 'white',
-    borderRadius: '8px',
+    backgroundColor: '#2d2d2d',
+    borderRadius: '12px',
     padding: '32px',
     width: '100%',
     maxWidth: '400px',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
   },
   title: {
-    fontSize: '24px',
+    fontSize: '28px',
     fontWeight: 'bold',
     marginBottom: '8px',
     textAlign: 'center',
+    color: '#ff6600',
   },
   subtitle: {
-    color: '#666',
+    color: '#a0a0a0',
     marginBottom: '24px',
     textAlign: 'center',
   },
   error: {
-    backgroundColor: '#fee',
-    color: '#c00',
+    backgroundColor: '#3d1f1f',
+    color: '#ff6b6b',
     padding: '12px',
-    borderRadius: '4px',
+    borderRadius: '6px',
     marginBottom: '16px',
     fontSize: '14px',
+    border: '1px solid #5a2a2a',
   },
   form: {
     display: 'flex',
@@ -116,25 +118,30 @@ const styles: Record<string, React.CSSProperties> = {
   field: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '4px',
+    gap: '6px',
   },
   label: {
     fontSize: '14px',
     fontWeight: '500',
+    color: '#ffffff',
   },
   input: {
-    padding: '10px',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    fontSize: '16px',
+    padding: '12px 14px',
+    border: '1px solid #404040',
+    borderRadius: '6px',
+    fontSize: '15px',
+    backgroundColor: '#1a1a1a',
+    color: '#ffffff',
+    outline: 'none',
   },
   button: {
-    padding: '12px',
-    backgroundColor: '#222',
+    padding: '14px',
+    backgroundColor: '#ff6600',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '6px',
     fontSize: '16px',
+    fontWeight: '500',
     cursor: 'pointer',
     marginTop: '8px',
   },
@@ -142,9 +149,10 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: '24px',
     textAlign: 'center',
     fontSize: '14px',
+    color: '#a0a0a0',
   },
   link: {
-    color: '#222',
+    color: '#ff6600',
     textDecoration: 'underline',
   },
 };
