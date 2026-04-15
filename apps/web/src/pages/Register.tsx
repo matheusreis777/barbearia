@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, Dispatch, SetStateAction } from 'react';
 import { Link } from 'react-router-dom';
 import { signUp } from '@barbearia/auth';
 
-export default function Register() {
+export default function Register({ setGlobalLoading }: { setGlobalLoading?: Dispatch<SetStateAction<boolean>> }) {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,6 +14,7 @@ export default function Register() {
     e.preventDefault();
     setError('');
     setLoading(true);
+    if (setGlobalLoading) setGlobalLoading(true);
 
     try {
       const { error } = await signUp(email, password, { nome });
@@ -27,6 +28,7 @@ export default function Register() {
       setError('Erro ao criar conta. Tente novamente.');
     } finally {
       setLoading(false);
+      if (setGlobalLoading) setGlobalLoading(false);
     }
   };
 

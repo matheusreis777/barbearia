@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, Dispatch, SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@barbearia/auth';
 
@@ -38,7 +38,13 @@ function formatCEP(value: string) {
   return result;
 }
 
-export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: (id: string) => void }) {
+export default function CadastroEmpresa({ 
+  onEmpresaCriada,
+  setGlobalLoading
+}: { 
+  onEmpresaCriada: (id: string) => void;
+  setGlobalLoading?: Dispatch<SetStateAction<boolean>>;
+}) {
   const navigate = useNavigate();
   const [nome, setNome] = useState('');
   const [cnpj, setCnpj] = useState('');
@@ -52,6 +58,7 @@ export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: 
   const [estado, setEstado] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [cepLoading, setCepLoading] = useState(false);
 
   const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCnpj(formatCNPJ(e.target.value));
@@ -65,10 +72,35 @@ export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: 
     setCep(formatCEP(e.target.value));
   };
 
+  const handleCepBlur = async () => {
+    const digits = cep.replace(/\D/g, '');
+    if (digits.length !== 8) return;
+    
+    setCepLoading(true);
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+      const data = await response.json();
+      
+      if (data.erro) {
+        return;
+      }
+      
+      setRua(data.logradouro || '');
+      setBairro(data.bairro || '');
+      setCidade(data.localidade || '');
+      setEstado(data.uf || '');
+    } catch {
+      // silenciosamente falha
+    } finally {
+      setCepLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+    if (setGlobalLoading) setGlobalLoading(true);
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -117,6 +149,7 @@ export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: 
       setError('Erro ao criar empresa. Tente novamente.');
     } finally {
       setLoading(false);
+      if (setGlobalLoading) setGlobalLoading(false);
     }
   };
 
@@ -175,14 +208,16 @@ export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: 
           
           <div style={styles.rowHalf}>
             <div style={styles.fieldFlex2}>
-              <label style={styles.label}>CEP</label>
+              <label style={styles.label}>CEP {cepLoading && <span style={styles.loadingText}>(buscando...)</span>}</label>
               <input
                 type="text"
                 value={cep}
                 onChange={handleCepChange}
+                onBlur={handleCepBlur}
                 style={styles.input}
                 placeholder="00000-000"
                 maxLength={9}
+                disabled={cepLoading}
               />
             </div>
             
@@ -373,5 +408,10 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: '500',
     cursor: 'pointer',
     marginTop: '16px',
+  },
+  loadingText: {
+    fontSize: '12px',
+    color: '#ff6600',
+    fontWeight: 'normal',
   },
 };

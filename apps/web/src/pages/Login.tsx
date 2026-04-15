@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, Dispatch, SetStateAction } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { signIn } from '@barbearia/auth';
 
-export default function Login() {
+export default function Login({ setGlobalLoading }: { setGlobalLoading?: Dispatch<SetStateAction<boolean>> }) {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,6 +13,7 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
+    if (setGlobalLoading) setGlobalLoading(true);
 
     try {
       const { error } = await signIn(email, password);
@@ -26,6 +27,7 @@ export default function Login() {
       setError('Erro ao fazer login. Tente novamente.');
     } finally {
       setLoading(false);
+      if (setGlobalLoading) setGlobalLoading(false);
     }
   };
 
