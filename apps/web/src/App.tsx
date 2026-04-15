@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { getSession, onAuthStateChange } from '@barbearia/auth';
+import { getSession, onAuthStateChange, supabase } from '@barbearia/auth';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -12,13 +12,44 @@ function App() {
   const [empresaId, setEmpresaId] = useState<string | null>(null);
 
   useEffect(() => {
+    const checkEmpresa = async (userId: string) => {
+      const { data: usuario } = await supabase
+        .from('usuarios')
+        .select('id')
+        .eq('auth_id', userId)
+        .single();
+
+      if (usuario) {
+        const { data: empresas } = await supabase
+          .from('empresas')
+          .select('id')
+          .eq('usuario_id', usuario.id)
+          .maybeSingle();
+        
+        if (empresas) {
+          setEmpresaId(empresas.id);
+        }
+      }
+      setLoading(false);
+    };
+
     getSession().then(({ data }) => {
       setSession(data.session);
-      setLoading(false);
+      if (data.session?.user?.id) {
+        checkEmpresa(data.session.user.id);
+      } else {
+        setLoading(false);
+      }
     });
 
     onAuthStateChange((_event, session) => {
       setSession(session);
+      if (session?.user?.id) {
+        checkEmpresa(session.user.id);
+      } else {
+        setEmpresaId(null);
+        setLoading(false);
+      }
     });
   }, []);
 
