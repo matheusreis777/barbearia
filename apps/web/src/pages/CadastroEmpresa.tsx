@@ -127,6 +127,8 @@ export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: 
         {error && <div style={styles.error}>{error}</div>}
         
         <form onSubmit={handleSubmit} style={styles.form}>
+          <div style={styles.sectionTitle}>Dados da Empresa</div>
+          
           <div style={styles.field}>
             <label style={styles.label}>Nome da Empresa *</label>
             <input
@@ -134,6 +136,7 @@ export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: 
               value={nome}
               onChange={(e) => setNome(e.target.value)}
               style={styles.input}
+              placeholder="Nome da sua barbearia"
               required
             />
           </div>
@@ -164,15 +167,44 @@ export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: 
             </div>
           </div>
           
+          <div style={styles.divider} />
+          
+          <div style={styles.sectionTitle}>Endereço</div>
+          
+          <div style={styles.row}>
+            <div style={{...styles.field, flex: 2}}>
+              <label style={styles.label}>CEP</label>
+              <input
+                type="text"
+                value={cep}
+                onChange={handleCepChange}
+                style={styles.input}
+                placeholder="00000-000"
+                maxLength={9}
+              />
+            </div>
+            
+            <div style={{...styles.field, flex: 1}}>
+              <label style={styles.label}>Estado</label>
+              <input
+                type="text"
+                value={estado}
+                onChange={(e) => setEstado(e.target.value.toUpperCase().slice(0, 2))}
+                style={styles.input}
+                placeholder="SP"
+                maxLength={2}
+              />
+            </div>
+          </div>
+          
           <div style={styles.field}>
-            <label style={styles.label}>CEP</label>
+            <label style={styles.label}>Cidade</label>
             <input
               type="text"
-              value={cep}
-              onChange={handleCepChange}
+              value={cidade}
+              onChange={(e) => setCidade(e.target.value)}
               style={styles.input}
-              placeholder="00000-000"
-              maxLength={9}
+              placeholder="Cidade"
             />
           </div>
           
@@ -183,55 +215,30 @@ export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: 
               value={rua}
               onChange={(e) => setRua(e.target.value)}
               style={styles.input}
-              placeholder="Rua, avenue, etc"
+              placeholder="Rua, Avenida, etc"
             />
           </div>
           
           <div style={styles.row}>
-            <div style={styles.field}>
+            <div style={{...styles.field, flex: 2}}>
               <label style={styles.label}>Número</label>
               <input
                 type="text"
                 value={numero}
                 onChange={(e) => setNumero(e.target.value)}
                 style={styles.input}
-                placeholder="Nº"
+                placeholder="Número"
               />
             </div>
             
-            <div style={styles.field}>
+            <div style={{...styles.field, flex: 3}}>
               <label style={styles.label}>Complemento</label>
               <input
                 type="text"
                 value={complemento}
                 onChange={(e) => setComplemento(e.target.value)}
                 style={styles.input}
-                placeholder="Sala, andar, etc"
-              />
-            </div>
-          </div>
-          
-          <div style={styles.row}>
-            <div style={styles.field}>
-              <label style={styles.label}>Cidade</label>
-              <input
-                type="text"
-                value={cidade}
-                onChange={(e) => setCidade(e.target.value)}
-                style={styles.input}
-                placeholder="Cidade"
-              />
-            </div>
-            
-            <div style={styles.field}>
-              <label style={styles.label}>Estado (UF)</label>
-              <input
-                type="text"
-                value={estado}
-                onChange={(e) => setEstado(e.target.value.toUpperCase().slice(0, 2))}
-                style={styles.input}
-                placeholder="SP"
-                maxLength={2}
+                placeholder="Sala, Andar, etc"
               />
             </div>
           </div>
@@ -249,41 +256,59 @@ const styles: Record<string, React.CSSProperties> = {
   container: {
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     minHeight: '100vh',
-    padding: '20px',
+    padding: '40px 20px',
+    backgroundColor: '#f5f5f5',
   },
   card: {
     backgroundColor: 'white',
-    borderRadius: '8px',
+    borderRadius: '12px',
     padding: '32px',
     width: '100%',
-    maxWidth: '450px',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+    maxWidth: '500px',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
   },
   title: {
-    fontSize: '24px',
+    fontSize: '28px',
     fontWeight: 'bold',
     marginBottom: '8px',
     textAlign: 'center',
+    color: '#222',
   },
   subtitle: {
     color: '#666',
-    marginBottom: '24px',
+    marginBottom: '28px',
     textAlign: 'center',
+    fontSize: '15px',
   },
   error: {
     backgroundColor: '#fee',
     color: '#c00',
     padding: '12px',
-    borderRadius: '4px',
-    marginBottom: '16px',
+    borderRadius: '6px',
+    marginBottom: '20px',
     fontSize: '14px',
+    border: '1px solid #fcc',
   },
   form: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
+    gap: '16px',
+  },
+  sectionTitle: {
+    fontSize: '13px',
+    fontWeight: '600',
+    color: '#888',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    marginBottom: '4px',
+    marginTop: '8px',
+  },
+  divider: {
+    height: '1px',
+    backgroundColor: '#eee',
+    margin: '8px 0',
   },
   row: {
     display: 'flex',
@@ -292,27 +317,32 @@ const styles: Record<string, React.CSSProperties> = {
   field: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '4px',
+    gap: '6px',
     flex: 1,
   },
   label: {
     fontSize: '14px',
     fontWeight: '500',
+    color: '#333',
   },
   input: {
-    padding: '10px',
+    padding: '12px 14px',
     border: '1px solid #ddd',
-    borderRadius: '4px',
-    fontSize: '16px',
+    borderRadius: '6px',
+    fontSize: '15px',
+    transition: 'border-color 0.2s',
+    outline: 'none',
   },
   button: {
-    padding: '12px',
+    padding: '14px',
     backgroundColor: '#222',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '6px',
     fontSize: '16px',
+    fontWeight: '500',
     cursor: 'pointer',
-    marginTop: '8px',
+    marginTop: '16px',
+    transition: 'background-color 0.2s',
   },
 };
