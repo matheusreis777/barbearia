@@ -2,6 +2,22 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@barbearia/auth';
 
+function formatCNPJ(value: string) {
+  return value
+    .replace(/\D/g, '')
+    .replace(/^(\d{2})(\d)/, '$1.$2')
+    .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3.$4')
+    .replace(/^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/, '$1.$2.$3.$4-$5');
+}
+
+function formatTelefone(value: string) {
+  return value
+    .replace(/\D/g, '')
+    .replace(/^(\d{2})(\d)/, '($1) $2')
+    .replace(/^(\d{2})\s(\d{5})(\d)/, '$1 $2-$3');
+}
+
 export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: (id: string) => void }) {
   const navigate = useNavigate();
   const [nome, setNome] = useState('');
@@ -10,6 +26,14 @@ export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: 
   const [endereco, setEndereco] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCnpj(formatCNPJ(e.target.value));
+  };
+
+  const handleTelefoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTelefone(formatTelefone(e.target.value));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,20 +109,22 @@ export default function CadastroEmpresa({ onEmpresaCriada }: { onEmpresaCriada: 
             <input
               type="text"
               value={cnpj}
-              onChange={(e) => setCnpj(e.target.value)}
+              onChange={handleCnpjChange}
               style={styles.input}
               placeholder="00.000.000/0001-00"
+              maxLength={18}
             />
           </div>
           
           <div style={styles.field}>
             <label style={styles.label}>Telefone</label>
             <input
-              type="tel"
+              type="text"
               value={telefone}
-              onChange={(e) => setTelefone(e.target.value)}
+              onChange={handleTelefoneChange}
               style={styles.input}
               placeholder="(00) 00000-0000"
+              maxLength={15}
             />
           </div>
           
