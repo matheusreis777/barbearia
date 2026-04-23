@@ -107,7 +107,10 @@ export default function Login({ setGlobalLoading, onLoginSuccess }: LoginProps) 
         </form>
         
         <p style={styles.footer}>
-          Não tem conta? <Link to="/register" style={styles.link}>Cadastre-se</Link>
+          Não tem uma conta? <Link to="/register" style={styles.link}>Cadastre-se</Link>
+        </p>
+        <p style={styles.footerColab}>
+          Sou colaborador? <Link to="/login-colaborador" style={styles.linkColab}>Acessar área de equipe</Link>
         </p>
       </div>
     </div>
@@ -195,5 +198,18 @@ const styles: Record<string, React.CSSProperties> = {
   link: {
     color: '#ff6600',
     textDecoration: 'underline',
+  },
+  footerColab: {
+    marginTop: '16px',
+    textAlign: 'center',
+    fontSize: '13px',
+    color: '#a0a0a0',
+    borderTop: '1px solid #404040',
+    paddingTop: '16px',
+  },
+  linkColab: {
+    color: '#a0a0a0',
+    textDecoration: 'none',
+    fontWeight: 'bold',
   },
 };

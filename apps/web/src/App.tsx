@@ -6,6 +6,11 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import CadastroEmpresa from './pages/CadastroEmpresa';
 
+import Colaboradores from './pages/Colaboradores';
+import LoginColaborador from './pages/LoginColaborador';
+import DashboardColaborador from './pages/DashboardColaborador';
+import AgendaColaborador from './pages/AgendaColaborador';
+
 function App() {
   const [loading, setLoading] = useState(true);
   const [globalLoading, setGlobalLoading] = useState(false);
@@ -116,6 +121,28 @@ function App() {
           element={
             session ? (
               checkingEmpresa ? <div></div> : (empresaId ? <Dashboard /> : <Navigate to="/cadastro-empresa" />)
+            ) : (
+              <Navigate to="/login" />
+            )
+          } 
+        />
+        <Route 
+          path="/login-colaborador" 
+          element={<LoginColaborador />} 
+        />
+        <Route 
+          path="/dashboard-colaborador" 
+          element={<DashboardColaborador />} 
+        />
+        <Route 
+          path="/agenda-colaborador" 
+          element={<AgendaColaborador />} 
+        />
+        <Route 
+          path="/colaboradores" 
+          element={
+            session ? (
+              checkingEmpresa ? <div></div> : (empresaId ? <Colaboradores /> : <Navigate to="/cadastro-empresa" />)
             ) : (
               <Navigate to="/login" />
             )
