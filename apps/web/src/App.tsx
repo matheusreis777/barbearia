@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import CadastroEmpresa from './pages/CadastroEmpresa';
 
 import Colaboradores from './pages/Colaboradores';
+import Servicos from './pages/Servicos';
 import LoginColaborador from './pages/LoginColaborador';
 import DashboardColaborador from './pages/DashboardColaborador';
 import AgendaColaborador from './pages/AgendaColaborador';
@@ -143,6 +144,16 @@ function App() {
           element={
             session ? (
               checkingEmpresa ? <div></div> : (empresaId ? <Colaboradores /> : <Navigate to="/cadastro-empresa" />)
+            ) : (
+              <Navigate to="/login" />
+            )
+          } 
+        />
+        <Route 
+          path="/servicos" 
+          element={
+            session ? (
+              checkingEmpresa ? <div></div> : (empresaId ? <Servicos /> : <Navigate to="/cadastro-empresa" />)
             ) : (
               <Navigate to="/login" />
             )

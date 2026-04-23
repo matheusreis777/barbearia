@@ -27,6 +27,8 @@ export default function DashboardColaborador() {
   const [valorFinal, setValorFinal] = useState('');
   const [saving, setSaving] = useState(false);
 
+  const [success, setSuccess] = useState(false);
+
   useEffect(() => {
     const savedSession = localStorage.getItem('barbearia_collab_session');
     if (!savedSession) {
@@ -97,7 +99,6 @@ export default function DashboardColaborador() {
     let value = e.target.value.replace(/\D/g, '');
     if (value.length > 11) value = value.slice(0, 11);
     
-    // Aplicar máscara (00) 00000-0000
     if (value.length > 10) {
       value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
     } else if (value.length > 6) {
@@ -121,7 +122,6 @@ export default function DashboardColaborador() {
       const agora = new Date();
       let finalClienteId = clienteId;
 
-      // Se não houver clienteId (novo cliente), cadastrar agora
       if (!finalClienteId) {
         const { data: newClient, error: clientErr } = await supabase
           .from('clientes')
@@ -153,14 +153,19 @@ export default function DashboardColaborador() {
 
       if (error) throw error;
       
-      // Reset and close
-      setShowModal(false);
-      setClienteNome('');
-      setClienteTelefone('');
-      setClienteId(null);
-      setServicoId('');
-      setValorFinal('');
-      fetchAgendamentos(session.id);
+      // Success UX
+      setSuccess(true);
+      setTimeout(() => {
+        setSuccess(false);
+        setShowModal(false);
+        setClienteNome('');
+        setClienteTelefone('');
+        setClienteId(null);
+        setServicoId('');
+        setValorFinal('');
+        fetchAgendamentos(session.id);
+      }, 1500);
+
     } catch (err) {
       alert('Erro ao lançar serviço');
     } finally {
@@ -183,7 +188,6 @@ export default function DashboardColaborador() {
     .filter(a => a.status === 'concluido' && new Date(a.data_inicio).toDateString() === new Date().toDateString())
     .reduce((acc, current) => acc + Number(current.valor_pago || 0), 0);
 
-  // Filtrar agendamentos do dia por status
   const hojeStr = new Date().toDateString();
   const proximosAgendamentos = agendamentos
     .filter(a => a.status === 'agendado' && new Date(a.data_inicio).toDateString() === hojeStr)
@@ -199,6 +203,11 @@ export default function DashboardColaborador() {
         @keyframes modalScale {
           from { transform: scale(0.9); opacity: 0; }
           to { transform: scale(1); opacity: 1; }
+        }
+        @keyframes successPop {
+          0% { transform: scale(0.5); opacity: 0; }
+          50% { transform: scale(1.1); opacity: 1; }
+          100% { transform: scale(1); opacity: 1; }
         }
       `}</style>
       <header style={styles.header}>
@@ -245,74 +254,91 @@ export default function DashboardColaborador() {
         {showModal && (
           <div style={styles.modalOverlay}>
             <div style={styles.modalContent}>
-              <div style={styles.modalHeader}>
-                <h3>Lançar Atendimento</h3>
-                <button onClick={() => setShowModal(false)} style={styles.closeBtn}>✕</button>
-              </div>
-              
-              <form onSubmit={handleLaunchService} style={styles.modalForm}>
-                <div style={styles.field}>
-                  <label style={styles.label}>WhatsApp / Telefone</label>
-                  <input
-                    type="text"
-                    value={clienteTelefone}
-                    onChange={handlePhoneChange}
-                    style={styles.input}
-                    placeholder="(00) 00000-0000"
-                    required
-                  />
+              {success ? (
+                <div style={styles.successContainer}>
+                  <div style={styles.successCheck}>✓</div>
+                  <h3 style={styles.successTitle}>Atendimento Lançado!</h3>
+                  <p style={styles.successSubtitle}>Registro salvo com sucesso.</p>
                 </div>
+              ) : (
+                <>
+                  <div style={styles.modalHeader}>
+                    <h3>Lançar Atendimento</h3>
+                    <button onClick={() => setShowModal(false)} style={styles.closeBtn}>✕</button>
+                  </div>
+                  
+                  <form onSubmit={handleLaunchService} style={styles.modalForm}>
+                    <div style={styles.field}>
+                      <label style={styles.label}>WhatsApp / Telefone</label>
+                      <input
+                        type="text"
+                        value={clienteTelefone}
+                        onChange={handlePhoneChange}
+                        style={styles.input}
+                        placeholder="(00) 00000-0000"
+                        required
+                      />
+                    </div>
 
-                <div style={styles.field}>
-                  <label style={styles.label}>
-                    Nome do Cliente {clienteId && <span style={{color: '#10b981', fontSize: '11px'}}>(✓ Identificado)</span>}
-                  </label>
-                  <input
-                    type="text"
-                    value={clienteNome}
-                    onChange={(e) => setClienteNome(e.target.value)}
-                    style={styles.input}
-                    placeholder="Nome"
-                    required
-                    disabled={!!clienteId}
-                  />
-                </div>
+                    <div style={styles.field}>
+                      <label style={styles.label}>
+                        Nome do Cliente {clienteId && <span style={{color: '#10b981', fontSize: '11px', fontWeight: 'bold'}}> • CLIENTE CADASTRADO</span>}
+                      </label>
+                      <input
+                        type="text"
+                        value={clienteNome}
+                        onChange={(e) => setClienteNome(e.target.value)}
+                        style={{
+                          ...styles.input,
+                          borderColor: clienteId ? '#10b981' : '#333',
+                          backgroundColor: clienteId ? '#064e3b22' : '#151515'
+                        }}
+                        placeholder="Nome"
+                        required
+                        disabled={!!clienteId}
+                      />
+                    </div>
 
-                <div style={styles.field}>
-                  <label style={styles.label}>Serviço</label>
-                  <select 
-                    style={styles.input} 
-                    value={servicoId}
-                    onChange={(e) => {
-                      const s = servicos.find(x => x.id === e.target.value);
-                      setServicoId(e.target.value);
-                      if (s) setValorFinal(s.preco.toString());
-                    }}
-                    required
-                  >
-                    <option value="">Selecione...</option>
-                    {servicos.map(s => (
-                      <option key={s.id} value={s.id}>{s.nome} - R$ {s.preco}</option>
-                    ))}
-                  </select>
-                </div>
+                    <div style={styles.field}>
+                      <label style={styles.label}>Serviço</label>
+                      <select 
+                        style={styles.input} 
+                        value={servicoId}
+                        onChange={(e) => {
+                          const s = servicos.find(x => x.id === e.target.value);
+                          setServicoId(e.target.value);
+                          if (s) setValorFinal(s.preco.toString());
+                        }}
+                        required
+                      >
+                        <option value="">Selecione...</option>
+                        {servicos.map(s => (
+                          <option key={s.id} value={s.id}>{s.nome} - R$ {s.preco}</option>
+                        ))}
+                      </select>
+                    </div>
 
-                <div style={styles.field}>
-                  <label style={styles.label}>Valor Final (R$)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={valorFinal}
-                    onChange={(e) => setValorFinal(e.target.value)}
-                    style={styles.input}
-                    required
-                  />
-                </div>
+                    <div style={styles.field}>
+                      <label style={styles.label}>Valor Final (R$)</label>
+                      <div style={styles.inputWithPrefix}>
+                        <span style={styles.prefix}>R$</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={valorFinal}
+                          onChange={(e) => setValorFinal(e.target.value)}
+                          style={styles.inputBare}
+                          required
+                        />
+                      </div>
+                    </div>
 
-                <button type="submit" style={styles.submitBtn} disabled={saving}>
-                  {saving ? 'Salvando...' : 'Confirmar Atendimento'}
-                </button>
-              </form>
+                    <button type="submit" style={styles.submitBtn} disabled={saving}>
+                      {saving ? 'Processando...' : 'Finalizar Atendimento'}
+                    </button>
+                  </form>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -694,6 +720,61 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 'bold',
     marginTop: '10px',
     cursor: 'pointer',
+    transition: 'transform 0.2s, background-color 0.2s',
+  },
+  successContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '40px 0',
+    animation: 'successPop 0.5s ease-out forwards',
+  },
+  successCheck: {
+    width: '80px',
+    height: '80px',
+    borderRadius: '50%',
+    backgroundColor: '#10b981',
+    color: 'white',
+    fontSize: '40px',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: '20px',
+    boxShadow: '0 0 20px rgba(16, 185, 129, 0.4)',
+  },
+  successTitle: {
+    fontSize: '22px',
+    fontWeight: 'bold',
+    color: '#ffffff',
+    marginBottom: '8px',
+  },
+  successSubtitle: {
+    fontSize: '15px',
+    color: '#a0a0a0',
+  },
+  inputWithPrefix: {
+    display: 'flex',
+    alignItems: 'center',
+    backgroundColor: '#151515',
+    border: '1px solid #333',
+    borderRadius: '12px',
+    padding: '0 14px',
+    gap: '8px',
+  },
+  prefix: {
+    color: '#606060',
+    fontSize: '15px',
+    fontWeight: 'bold',
+  },
+  inputBare: {
+    padding: '14px 0',
+    backgroundColor: 'transparent',
+    border: 'none',
+    color: 'white',
+    fontSize: '16px',
+    outline: 'none',
+    width: '100%',
   },
 };
 
