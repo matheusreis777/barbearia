@@ -32,6 +32,7 @@ export default function Dashboard() {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [agendamentosHoje, setAgendamentosHoje] = useState<any[]>([]);
+  const [ultimosAtendimentos, setUltimosAtendimentos] = useState<any[]>([]);
 
   useEffect(() => {
     fetchInitialData();
@@ -82,6 +83,16 @@ export default function Dashboard() {
           .eq('status', 'concluido')
           .gte('data_inicio', hoje.toISOString());
         setAgendamentosHoje(agends || []);
+
+        // Buscar Últimos Atendimentos (Geral)
+        const { data: ultimos } = await supabase
+          .from('agendamentos')
+          .select('*, colaboradores(nome)')
+          .eq('empresa_id', empresaData.id)
+          .eq('status', 'concluido')
+          .order('data_inicio', { ascending: false })
+          .limit(5);
+        setUltimosAtendimentos(ultimos || []);
       }
     } catch (err) {
       console.error(err);
@@ -265,11 +276,52 @@ export default function Dashboard() {
             <span style={styles.menuDesc}>Gerenciar profissionais</span>
           </button>
           
-          <button style={{...styles.menuCard, opacity: 0.5, cursor: 'default'}}>
-            <span style={styles.menuIcon}>📅</span>
-            <span style={styles.menuTitle}>Agenda</span>
-            <span style={styles.menuDesc}>Em breve</span>
+          <button 
+            onClick={() => navigate('/clientes')} 
+            style={styles.menuCard}
+          >
+            <span style={styles.menuIcon}>👤</span>
+            <span style={styles.menuTitle}>Clientes</span>
+            <span style={styles.menuDesc}>Base de dados de clientes</span>
           </button>
+
+          <button 
+            onClick={() => navigate('/relatorios')} 
+            style={styles.menuCard}
+          >
+            <span style={styles.menuIcon}>📊</span>
+            <span style={styles.menuTitle}>Relatórios</span>
+            <span style={styles.menuDesc}>Histórico e filtros</span>
+          </button>
+        </div>
+
+        <div style={styles.recentSection}>
+          <h3 style={styles.sectionTitle}>Últimos Lançamentos</h3>
+          <div style={styles.recentGrid}>
+            {ultimosAtendimentos.length === 0 ? (
+              <p style={styles.emptyText}>Nenhum lançamento recente.</p>
+            ) : (
+              ultimosAtendimentos.map((a) => (
+                <div key={a.id} style={styles.recentItem}>
+                  <div style={styles.recentMain}>
+                    <span style={styles.recentClient}>{a.cliente_nome}</span>
+                    <span style={styles.recentService}>{a.servico_nome}</span>
+                  </div>
+                  <div style={styles.recentMeta}>
+                    <span style={styles.recentColab}>
+                      {a.colaboradores?.nome || 'Administrador'}
+                    </span>
+                    <span style={styles.recentValue}>R$ {Number(a.valor_pago).toFixed(2)}</span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          {ultimosAtendimentos.length > 0 && (
+            <button onClick={() => navigate('/relatorios')} style={styles.viewAllBtn}>
+              Ver todo o histórico →
+            </button>
+          )}
         </div>
       </div>
 
@@ -629,4 +681,76 @@ const styles: Record<string, React.CSSProperties> = {
     outline: 'none',
     width: '100%',
   },
+  recentSection: {
+    marginTop: '40px',
+    borderTop: '1px solid #404040',
+    paddingTop: '32px',
+  },
+  sectionTitle: {
+    fontSize: '18px',
+    fontWeight: 'bold',
+    marginBottom: '20px',
+    color: '#ffffff',
+  },
+  recentGrid: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+  },
+  recentItem: {
+    backgroundColor: '#1a1a1a',
+    borderRadius: '12px',
+    padding: '16px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    border: '1px solid #333',
+    transition: 'transform 0.2s',
+  },
+  recentMain: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
+  },
+  recentClient: {
+    fontSize: '15px',
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  recentService: {
+    fontSize: '13px',
+    color: '#ff6600',
+  },
+  recentMeta: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    gap: '4px',
+  },
+  recentColab: {
+    fontSize: '12px',
+    color: '#a0a0a0',
+  },
+  recentValue: {
+    fontSize: '15px',
+    fontWeight: 'bold',
+    color: '#10b981',
+  },
+  viewAllBtn: {
+    marginTop: '20px',
+    backgroundColor: 'transparent',
+    border: 'none',
+    color: '#a0a0a0',
+    fontSize: '14px',
+    cursor: 'pointer',
+    padding: '8px 0',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#a0a0a0',
+    padding: '20px',
+  }
 };

@@ -8,6 +8,8 @@ import CadastroEmpresa from './pages/CadastroEmpresa';
 
 import Colaboradores from './pages/Colaboradores';
 import Servicos from './pages/Servicos';
+import Clientes from './pages/Clientes';
+import Relatorios from './pages/Relatorios';
 import LoginColaborador from './pages/LoginColaborador';
 import DashboardColaborador from './pages/DashboardColaborador';
 import AgendaColaborador from './pages/AgendaColaborador';
@@ -154,6 +156,26 @@ function App() {
           element={
             session ? (
               checkingEmpresa ? <div></div> : (empresaId ? <Servicos /> : <Navigate to="/cadastro-empresa" />)
+            ) : (
+              <Navigate to="/login" />
+            )
+          } 
+        />
+        <Route 
+          path="/clientes" 
+          element={
+            session ? (
+              checkingEmpresa ? <div></div> : (empresaId ? <Clientes /> : <Navigate to="/cadastro-empresa" />)
+            ) : (
+              <Navigate to="/login" />
+            )
+          } 
+        />
+        <Route 
+          path="/relatorios" 
+          element={
+            session ? (
+              checkingEmpresa ? <div></div> : (empresaId ? <Relatorios /> : <Navigate to="/cadastro-empresa" />)
             ) : (
               <Navigate to="/login" />
             )
