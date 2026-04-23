@@ -21,10 +21,16 @@ export default function LoginColaborador() {
         .select('*, empresas(nome)')
         .eq('nickname', nickname.toLowerCase().trim())
         .eq('ativo', true)
-        .single();
+        .maybeSingle(); // Usar maybeSingle para evitar erro de 'PGRST116'
 
-      if (fetchError || !colaborador) {
-        throw new Error('Usuário não encontrado ou inativo.');
+      if (fetchError) {
+        console.error('Erro Supabase:', fetchError);
+        throw new Error(`Erro na busca: ${fetchError.message}`);
+      }
+      
+      if (!colaborador) {
+        // Se não encontrar nada, pode ser erro de nickname ou RLS
+        throw new Error('Usuário não encontrado ou erro de permissão (RLS).');
       }
 
       // Validar a senha (no mundo real seria hash + salt)
@@ -46,10 +52,11 @@ export default function LoginColaborador() {
 
       localStorage.setItem('barbearia_collab_session', JSON.stringify(collabSession));
       
-      // Redirecionar para o painel do colaborador (que podemos criar depois)
+      // Redirecionar para o painel do colaborador
       navigate('/dashboard-colaborador');
       
     } catch (err: any) {
+      console.error(err);
       setError(err.message || 'Erro ao realizar login.');
     } finally {
       setLoading(false);
